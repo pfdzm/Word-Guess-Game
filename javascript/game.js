@@ -1,54 +1,46 @@
-var target = document.querySelector("#playArea");
-var app = document.querySelector("#app");
-
-var word = "";
-
-// dictionary of words to choose from randomly, words are not case sensitive
+// dictionary of words to choose from randomly, words are case insensitive
+// 'programming' theme
 var dictionary = [
   "console",
-  "bootstrap",
-  "querySelector",
-  "innerHTML",
   "JavaScript",
-  "variable",
-  "input",
-  "output",
-  "restful",
-  "getElementById"
+  "Windows",
+  "Macintosh",
+  "Linux",
+  "Commodore",
+  "terminal",
+  "Solaris",
+  "NeXTSTEP"
 ];
-
-// TODO: randomizer to pick answer word
-var answer = dictionary[2];
-var answerDisplay = "";
 
 // sanitize input to focus on letters only
 var allowedChars = "abcdefghijklmnopqrstuvwxyz";
-// create a variable of the same length as answer, but with all characters as an underscore
-for (let index = 0; index < answer.length; index++) {
-  answerDisplay += `_`;
-}
-// user has 10 attemps; we need to keep track of what characters the user has attempted and display them on screen
-var attemptCounter = 10;
-var attemptChars = "";
+/*
+declare variables
+answer will contain the chosen word from dictionary
+answerDisplay will contain the answer substituted with underscores/correct guesses
+attemptCounter keeps track of wrong guesses
+attemptChars contains all previously guessed letters
 
-// insert the elements we will be using into the page
-target.innerHTML = `
-<h1>Press any key to get started!</h1>
-<p id="answerDisplay"></p>
-<br />
-<p id="attemptChars"></p>
-<br>
-<p id="warning"></p>
-`;
+they are initialized later, no need for it here
+
+*/
+var answer, answerDisplay, attemptCounter, attemptChars;
+
+var win = 0,
+  loss = 0;
 
 // select elements to put data into
+var target = document.querySelector("#playArea");
+var app = document.querySelector("#app");
 var answerDisplayId = document.querySelector("#answerDisplay");
 var attemptCharsId = document.querySelector("#attemptChars");
-
 var warningId = document.querySelector("#warning");
+var scoreId = document.querySelector("#score");
 
+// this variable is used to trigger a new game
 var startGame = true;
 
+// listen for keydown events on the whole page
 document.onkeydown = keyDown;
 
 // fun begins when a user presses a key
@@ -60,15 +52,18 @@ function keyDown(event) {
     // keep things easy by making everything lowercase
     answer = pickAnswer(dictionary).toLowerCase();
     answerDisplay = anonimizeAnswer(answer);
-    answerDisplayId.textContent = answerDisplay;
     attemptChars = "";
     attemptCounter = 10;
+    warningId.textContent = "";
 
-    attemptCharsId.innerHTML =
-      `Attempts left: ` +
-      attemptCounter +
-      `<br/>Attempted letters: ` +
-      attemptChars;
+    updatePage(
+      answerDisplayId,
+      answerDisplay,
+      attemptCharsId,
+      attemptCounter,
+      attemptChars
+    );
+
     startGame = false;
   } else {
     // first check if there are any attempts remaining
@@ -89,6 +84,7 @@ function keyDown(event) {
               position = answer.indexOf(key, position + 1);
             }
             if (answerDisplay === answer) {
+              scoreId.textContent = `Wins: ${++win}, Losses: ${loss}`
               warningId.textContent = "You win! Press any key to play again";
               startGame = true;
             }
@@ -98,13 +94,15 @@ function keyDown(event) {
         warningId.textContent =
           "Please select a letter from the latin alphabet.";
       }
-      answerDisplayId.textContent = answerDisplay;
-      attemptCharsId.innerHTML =
-        `Attempts left: ` +
-        attemptCounter +
-        `<br/>Attempted letters: ` +
-        attemptChars;
+      updatePage(
+        answerDisplayId,
+        answerDisplay,
+        attemptCharsId,
+        attemptCounter,
+        attemptChars
+      );
     } else {
+      scoreId.textContent = `Wins: ${win}, Losses: ${++loss}`
       warningId.textContent = "Game over! Press any key to play again";
       startGame = true;
     }
@@ -132,4 +130,19 @@ function anonimizeAnswer(str) {
 function pickAnswer(dictionary) {
   var randInt = Math.floor(Math.random() * dictionary.length);
   return dictionary[randInt];
+}
+
+// updates guesses on screen
+function updatePage(
+  answerDisplayId,
+  answerDisplay,
+  attemptCharsId,
+  attemptCounter,
+  attemptChars
+) {
+  answerDisplayId.textContent = answerDisplay;
+
+  attemptCharsId.innerHTML = `
+  Attempts left: ${attemptCounter} <br/>Attempted letters: <span id="attempts">${attemptChars}</span>
+  `;
 }

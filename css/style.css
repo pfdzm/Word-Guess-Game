@@ -9,11 +9,10 @@ body {
 }
 
 #app {
-  padding: 1rem;
-  background-color: #cfcfcf;
-  color: blueviolet;
+  background-color: #0f0f0f;
+  color: limegreen;
   font-family: monospace;
-  font-size: 32px;
+  font-size: 16px;
   min-height: 600px;
 }
 
@@ -22,5 +21,40 @@ body {
 }
 
 #answerDisplay {
+  margin: 2rem 0;
   letter-spacing: 1rem;
+  color: lime;
+  font-weight: bold;
+  background-color: #1f1f1f;
+  text-align: center;
+}
+
+#warning {
+  color: lime;
+}
+
+#title {
+  font-family: monospace;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+#playArea {
+  padding: 1rem;
+  margin-top: 1rem;
+  border-top: 2px solid lime;
+}
+
+#attempts {
+  letter-spacing: 1rem;
+}
+
+#img-container {
+  text-align: center;
+}
+
+img {
+  max-width: 320px;
+  height: auto;
 }
