@@ -52,7 +52,7 @@ function keyDown(event) {
     answer = pickAnswer(dictionary).toLowerCase();
     answerDisplay = anonimizeAnswer(answer);
     attemptChars = "";
-    attemptCounter = 10;
+    attemptCounter = 12;
     warningId.textContent = "";
     startGame = false;
     updatePage(
