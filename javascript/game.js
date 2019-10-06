@@ -2,12 +2,13 @@
 // 'programming' theme
 var dictionary = [
   "console",
+  "terminal",
   "JavaScript",
   "Windows",
-  "Macintosh",
   "Linux",
+  "Macintosh",
   "Commodore",
-  "terminal",
+  "Amiga",
   "Solaris",
   "NeXTSTEP"
 ];
@@ -55,7 +56,7 @@ function keyDown(event) {
     attemptChars = "";
     attemptCounter = 10;
     warningId.textContent = "";
-
+    startGame = false;
     updatePage(
       answerDisplayId,
       answerDisplay,
@@ -63,49 +64,51 @@ function keyDown(event) {
       attemptCounter,
       attemptChars
     );
-
-    startGame = false;
   } else {
-    // first check if there are any attempts remaining
-    if (attemptCounter > 0) {
-      if (allowedChars.includes(key)) {
-        warningId.textContent = "";
-        if (!attemptChars.includes(key)) {
-          // user had not tried key -> add key to list of attempts, decrease remaining attempts by 1
-          attemptChars += key;
-          if (answer.includes(key)) {
-            // user has guessed a correct letter
-            // get the index of the first occurrence of the letter
-            var position = answer.indexOf(key);
-            // get all occurrences of the letter to replace dashes on screen
-            while (position > -1) {
-              // replace underscore with correct letter
-              answerDisplay = replaceDash(answerDisplay, position, key);
-              position = answer.indexOf(key, position + 1);
-            }
-            if (answerDisplay === answer) {
-              scoreId.textContent = `Wins: ${++win}, Losses: ${loss}`
-              warningId.textContent = "You win! Press any key to play again";
-              startGame = true;
-            }
-          } else --attemptCounter;
+    if (allowedChars.includes(key)) {
+      warningId.textContent = "";
+      if (!attemptChars.includes(key)) {
+        // user had not tried key -> add key to list of attempts, decrease remaining attempts by 1
+        attemptChars += key;
+        if (answer.includes(key)) {
+          // user has guessed a correct letter
+          // get the index of the first occurrence of the letter
+          var position = answer.indexOf(key);
+          // get all occurrences of the letter to replace dashes on screen
+          while (position > -1) {
+            // replace underscore with correct letter
+            answerDisplay = replaceDash(answerDisplay, position, key);
+            position = answer.indexOf(key, position + 1);
+          }
+          if (answerDisplay === answer) {
+            scoreId.textContent = `Wins: ${++win}, Losses: ${loss}`;
+            warningId.textContent = "You win! Press any key to play again...";
+            startGame = true;
+          }
+        } else if (--attemptCounter == 0) {
+          scoreId.textContent = `Wins: ${win}, Losses: ${++loss}`;
+          warningId.textContent = "Game over! Press any key to play again...";
+          startGame = true;
+          updatePage(
+            answerDisplayId,
+            answerDisplay,
+            attemptCharsId,
+            attemptCounter,
+            attemptChars
+          );
         }
-      } else {
-        warningId.textContent =
-          "Please select a letter from the latin alphabet.";
       }
-      updatePage(
-        answerDisplayId,
-        answerDisplay,
-        attemptCharsId,
-        attemptCounter,
-        attemptChars
-      );
     } else {
-      scoreId.textContent = `Wins: ${win}, Losses: ${++loss}`
-      warningId.textContent = "Game over! Press any key to play again";
-      startGame = true;
+      // let user know we only accept abc-input
+      warningId.textContent = "Letters only!";
     }
+    updatePage(
+      answerDisplayId,
+      answerDisplay,
+      attemptCharsId,
+      attemptCounter,
+      attemptChars
+    );
   }
 }
 

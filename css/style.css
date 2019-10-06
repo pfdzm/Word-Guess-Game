@@ -6,14 +6,16 @@
 body {
   margin: 0 auto;
   max-width: 640px;
+  height: 100vh;
 }
 
 #app {
   background-color: #0f0f0f;
-  color: limegreen;
+  color: lime;
   font-family: monospace;
   font-size: 16px;
   min-height: 600px;
+  height: 100%
 }
 
 #app p {
@@ -23,14 +25,9 @@ body {
 #answerDisplay {
   margin: 2rem 0;
   letter-spacing: 1rem;
-  color: lime;
   font-weight: bold;
   background-color: #1f1f1f;
   text-align: center;
-}
-
-#warning {
-  color: lime;
 }
 
 #title {
