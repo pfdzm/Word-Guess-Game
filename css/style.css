@@ -6,7 +6,6 @@
 body {
   margin: 0 auto;
   max-width: 640px;
-  height: 100vh;
 }
 
 #app {
@@ -15,7 +14,6 @@ body {
   font-family: monospace;
   font-size: 16px;
   min-height: 600px;
-  height: 100%
 }
 
 #app p {
@@ -47,11 +45,16 @@ body {
   letter-spacing: 1rem;
 }
 
-#img-container {
+.img-container {
   text-align: center;
 }
 
 img {
   max-width: 320px;
   height: auto;
+}
+
+img#answer.styled {
+    padding: 0.5rem;
+    border: 1px solid lime;
 }

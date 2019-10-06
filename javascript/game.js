@@ -1,16 +1,13 @@
 // dictionary of words to choose from randomly, words are case insensitive
 // 'programming' theme
 var dictionary = [
-  "console",
   "terminal",
   "JavaScript",
   "Windows",
   "Linux",
   "Macintosh",
   "Commodore",
-  "Amiga",
-  "Solaris",
-  "NeXTSTEP"
+  "Amiga"
 ];
 
 // sanitize input to focus on alphabet letters only
@@ -37,6 +34,7 @@ var answerDisplayId = document.querySelector("#answerDisplay");
 var attemptCharsId = document.querySelector("#attemptChars");
 var warningId = document.querySelector("#warning");
 var scoreId = document.querySelector("#score");
+var answerImgId = document.querySelector("img#answer");
 
 // this variable is used to trigger a new game
 var startGame = true;
@@ -143,6 +141,8 @@ function updatePage(
   attemptCounter,
   attemptChars
 ) {
+  answerImgId.setAttribute("src", `images/${answer.toLowerCase()}.jpg`);
+  answerImgId.setAttribute('class', 'styled')
   answerDisplayId.textContent = answerDisplay;
 
   attemptCharsId.innerHTML = `
