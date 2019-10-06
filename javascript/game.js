@@ -13,7 +13,7 @@ var dictionary = [
   "NeXTSTEP"
 ];
 
-// sanitize input to focus on letters only
+// sanitize input to focus on alphabet letters only
 var allowedChars = "abcdefghijklmnopqrstuvwxyz";
 /*
 declare variables
