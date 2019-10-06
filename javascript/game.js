@@ -50,8 +50,10 @@ function toggleAudio() {
   if (audioId.paused == true) {
     audioId.play();
     audioId.loop = true;
+    unmuteId.textContent = "Pause music";
   } else {
     audioId.pause();
+    unmuteId.textContent = "Play music";
   }
 }
 // unmuteId.addEventListener("onclick", function() {
