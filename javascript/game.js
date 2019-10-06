@@ -45,6 +45,8 @@ document.onkeydown = keyDown;
 // fun begins when a user presses a key
 function keyDown(event) {
   var key = event.key;
+  // resume Audio Context after user interaction so browser lets us play a sound
+  context.resume();
 
   // if it's the first keypress, we need to select a word and display the blanks on the screen
   if (startGame) {
@@ -79,11 +81,13 @@ function keyDown(event) {
             position = answer.indexOf(key, position + 1);
           }
           if (answerDisplay === answer) {
+            playSuccess();
             scoreId.textContent = `Wins: ${++win}, Losses: ${loss}`;
             warningId.textContent = "You win! Press any key to play again...";
             startGame = true;
           }
         } else if (--attemptCounter == 0) {
+          playError();
           scoreId.textContent = `Wins: ${win}, Losses: ${++loss}`;
           warningId.textContent = "Game over! Press any key to play again...";
           startGame = true;
@@ -142,10 +146,65 @@ function updatePage(
   attemptChars
 ) {
   answerImgId.setAttribute("src", `images/${answer.toLowerCase()}.jpg`);
-  answerImgId.setAttribute('class', 'styled')
+  answerImgId.setAttribute("class", "styled");
   answerDisplayId.textContent = answerDisplay;
 
   attemptCharsId.innerHTML = `
   Attempts left: ${attemptCounter} <br/>Attempted letters: <span id="attempts">${attemptChars}</span>
   `;
+}
+
+// from https://css-tricks.com/form-validation-web-audio/
+
+const context = new window.AudioContext();
+
+function playSuccess() {
+  const successNoise = context.createOscillator();
+  successNoise.frequency = "600";
+  successNoise.type = "sine";
+  successNoise.frequency.exponentialRampToValueAtTime(
+    800,
+    context.currentTime + 0.05
+  );
+  successNoise.frequency.exponentialRampToValueAtTime(
+    1000,
+    context.currentTime + 0.15
+  );
+
+  successGain = context.createGain();
+  successGain.gain.exponentialRampToValueAtTime(
+    0.01,
+    context.currentTime + 0.3
+  );
+
+  successFilter = context.createBiquadFilter("bandpass");
+  successFilter.Q = 0.01;
+
+  successNoise
+    .connect(successFilter)
+    .connect(successGain)
+    .connect(context.destination);
+  successNoise.start();
+  successNoise.stop(context.currentTime + 0.2);
+}
+
+function playError() {
+  const errorNoise = context.createOscillator();
+  errorNoise.frequency = "400";
+  errorNoise.type = "sine";
+  errorNoise.frequency.exponentialRampToValueAtTime(
+    200,
+    context.currentTime + 0.05
+  );
+  errorNoise.frequency.exponentialRampToValueAtTime(
+    100,
+    context.currentTime + 0.2
+  );
+
+  errorGain = context.createGain();
+  errorGain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.3);
+
+  errorNoise.connect(errorGain).connect(context.destination);
+  errorNoise.start();
+  errorNoise.stop(context.currentTime + 0.3);
 }
