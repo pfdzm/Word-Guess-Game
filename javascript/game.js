@@ -4,7 +4,18 @@ var app = document.querySelector("#app");
 var word = "";
 
 // dictionary of words to choose from randomly, words are not case sensitive
-var dictionary = ["console", "bootstrap", "querySelector", "innerHTML"];
+var dictionary = [
+  "console",
+  "bootstrap",
+  "querySelector",
+  "innerHTML",
+  "JavaScript",
+  "variable",
+  "input",
+  "output",
+  "restful",
+  "getElementById"
+];
 
 // TODO: randomizer to pick answer word
 var answer = dictionary[2];
@@ -21,12 +32,14 @@ var attemptCounter = 10;
 var attemptChars = "";
 
 // insert the elements we will be using into the page
-target.innerHTML = `<h1>Press any key to get started!</h1>
+target.innerHTML = `
+<h1>Press any key to get started!</h1>
 <p id="answerDisplay"></p>
 <br />
 <p id="attemptChars"></p>
 <br>
-<p id="warning"></p>`;
+<p id="warning"></p>
+`;
 
 // select elements to put data into
 var answerDisplayId = document.querySelector("#answerDisplay");
@@ -42,11 +55,15 @@ document.onkeydown = keyDown;
 function keyDown(event) {
   var key = event.key;
 
+  // if it's the first keypress, we need to select a word and display the blanks on the screen
   if (startGame) {
     // keep things easy by making everything lowercase
     answer = pickAnswer(dictionary).toLowerCase();
     answerDisplay = anonimizeAnswer(answer);
     answerDisplayId.textContent = answerDisplay;
+    attemptChars = "";
+    attemptCounter = 10;
+
     attemptCharsId.innerHTML =
       `Attempts left: ` +
       attemptCounter +
@@ -72,7 +89,8 @@ function keyDown(event) {
               position = answer.indexOf(key, position + 1);
             }
             if (answerDisplay === answer) {
-              warningId.textContent = "You win!";
+              warningId.textContent = "You win! Press any key to play again";
+              startGame = true;
             }
           } else --attemptCounter;
         }
@@ -87,7 +105,8 @@ function keyDown(event) {
         `<br/>Attempted letters: ` +
         attemptChars;
     } else {
-      warningId.textContent = "Game over!";
+      warningId.textContent = "Game over! Press any key to play again";
+      startGame = true;
     }
   }
 }
