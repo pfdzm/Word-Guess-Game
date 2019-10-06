@@ -35,12 +35,30 @@ var attemptCharsId = document.querySelector("#attemptChars");
 var warningId = document.querySelector("#warning");
 var scoreId = document.querySelector("#score");
 var answerImgId = document.querySelector("img#answer");
+var unmuteId = document.querySelector("button#unmute");
 
 // this variable is used to trigger a new game
 var startGame = true;
 
 // listen for keydown events on the whole page
 document.onkeydown = keyDown;
+
+var audioId = document.querySelector("#musicplayer");
+unmuteId.addEventListener("click", toggleAudio);
+
+function toggleAudio() {
+  if (audioId.paused == true) {
+    audioId.play();
+    audioId.loop = true;
+  } else {
+    audioId.pause();
+  }
+}
+// unmuteId.addEventListener("onclick", function() {
+//   audioId.play();
+//   audioId.loop = true;
+//   audioId.innerHTML = `<h1>Test</h1>`
+// });
 
 // fun begins when a user presses a key
 function keyDown(event) {

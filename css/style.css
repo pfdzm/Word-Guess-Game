@@ -55,6 +55,18 @@ img {
 }
 
 img#answer.styled {
-    padding: 0.5rem;
-    border: 1px solid lime;
+  padding: 0.5rem;
+  border: 1px solid lime;
+}
+
+button#unmute {
+  border: none;
+  background: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  color: lime;
+  font-weight: bold;
+  text-decoration: underline;
+  position: absolute;
+  top: 1rem;
 }
