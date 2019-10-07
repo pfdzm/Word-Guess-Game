@@ -147,8 +147,8 @@ var game = {
       // let user know we only accept abc-input
       this.selectors.warningId.textContent = "Letters only!";
     }
-    // uncomment the following statement to track game state in console after each keydown
-    console.log(this.gameState);
+    // (un)comment the following statement to track game state in console after each keydown
+    // console.log(this.gameState);
   },
   replaceAt(strRef, position, str) {
     return strRef.substring(0, position) + str + strRef.substring(position + 1);
