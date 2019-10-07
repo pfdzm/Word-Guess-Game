@@ -1,5 +1,8 @@
 // dictionary of words to choose from randomly, words are case insensitive
 // 'programming' theme
+// sanitize input to focus on alphabet letters only
+var allowedChars = "abcdefghijklmnopqrstuvwxyz";
+
 var dictionary = [
   "terminal",
   "JavaScript",
@@ -10,8 +13,6 @@ var dictionary = [
   "Amiga"
 ];
 
-// sanitize input to focus on alphabet letters only
-var allowedChars = "abcdefghijklmnopqrstuvwxyz";
 /*
 declare variables
 answer will contain the chosen word from dictionary
@@ -29,38 +30,134 @@ var win = 0,
 
 // select elements to put data into
 var target = document.querySelector("#playArea");
-var app = document.querySelector("#app");
+// var app = document.querySelector("#app");
 var answerDisplayId = document.querySelector("#answerDisplay");
 var attemptCharsId = document.querySelector("#attemptChars");
 var warningId = document.querySelector("#warning");
 var scoreId = document.querySelector("#score");
 var answerImgId = document.querySelector("img#answer");
 var unmuteId = document.querySelector("button#unmute");
+var audioId = document.querySelector("#musicplayer");
 
 // this variable is used to trigger a new game
 var startGame = true;
 
-// listen for keydown events on the whole page
-document.onkeydown = keyDown;
+/* game object */
 
-var audioId = document.querySelector("#musicplayer");
-unmuteId.addEventListener("click", toggleAudio);
+var game = {
+  gameSettings: { dictionary, allowedChars },
+  gameState: {
+    answer,
+    answerDisplay,
+    attemptCounter,
+    attemptChars,
+    startGame
+  },
+  selectors: {
+    target,
+    answerDisplayId,
+    attemptCharsId,
+    warningId,
+    scoreId,
+    answerImgId,
+    unmuteId,
+    audioId
+  },
+  score: {
+    win,
+    loss
+  },
+  start: function() {
+    if (this.gameState.startGame) {
+      this.gameState.answer = this.pickAnswer(
+        this.gameSettings.dictionary
+      ).toLowerCase();
+    }
+  },
+  pickAnswer: function(str) {
+    var randInt = Math.floor(Math.random() * str.length);
+    return str[randInt];
+  },
 
-function toggleAudio() {
-  if (audioId.paused == true) {
-    audioId.play();
-    audioId.loop = true;
-    unmuteId.textContent = "Pause music";
-  } else {
-    audioId.pause();
-    unmuteId.textContent = "Play music";
+  update: function() {
+    this.selectors.answerImgId.setAttribute(
+      "src",
+      `images/${this.gameState.answer.toLowerCase()}.jpg`
+    );
+    this.selectors.answerImgId.setAttribute("class", "styled");
+    this.selectors.answerDisplayId.textContent = answerDisplay;
+
+    this.selectors.attemptCharsId.innerHTML = `
+  Attempts left: ${this.gameState.attemptCounter} <br/>Attempted letters: <span id="attempts">${this.gameState.attemptChars}</span>
+  `;
+  },
+  toggleAudio: function() {
+    var music = this.selectors.audioId;
+    var button = this.selectors.unmuteId;
+    if (music.paused) {
+      music.play();
+      music.loop = true;
+      button.textContent = "Pause music";
+    } else {
+      music.pause();
+      button.textContent = "Play music";
+    }
+  },
+  keyDown: function(event) {
+    var key = event.key;
+    console.log(this);
+    game.checkKey(key);
+
+  },
+  checkKey: function(key) {
+    if (this.gameSettings.allowedChars.includes(key)) {
+      this.selectors.warningId.textContent = "";
+      if (!this.gameState.attemptChars.includes(key)) {
+        // user had not tried key -> add key to list of attempts, decrease remaining attempts by 1
+        this.gameState.attemptChars += key;
+        if (this.gameState.answer.includes(key)) {
+          // user has guessed a correct letter
+          // get the index of the first occurrence of the letter
+          var position = this.gameState.answer.indexOf(key);
+          // get all occurrences of the letter to replace dashes on screen
+          while (position > -1) {
+            // replace underscore with correct letter
+            this.gameState.answerDisplay = replaceDash(
+              this.gameState.answerDisplay,
+              position,
+              key
+            );
+            position = this.gameState.answer.indexOf(key, position + 1);
+          }
+          if (this.gameState.answerDisplay === this.gameState.answer) {
+            // playSuccess();
+            this.selectors.scoreId.textContent = `Wins: ${++this.score
+              .win}, Losses: ${this.score.loss}`;
+            this.selectors.warningId.textContent =
+              "You win! Press any key to play again...";
+            this.gameState.startGame = true;
+          }
+        } else if (--this.gameState.attemptCounter == 0) {
+          // playError();
+          this.selectors.scoreId.textContent = `Wins: ${
+            this.score.win
+          }, Losses: ${++this.score.loss}`;
+          this.selectors.warningId.textContent =
+            "Game over! Press any key to play again...";
+          this.gameState.startGame = true;
+        }
+      }
+    } else {
+      // let user know we only accept abc-input
+      this.selectors.warningId.textContent = "Letters only!";
+    }
   }
-}
-// unmuteId.addEventListener("onclick", function() {
-//   audioId.play();
-//   audioId.loop = true;
-//   audioId.innerHTML = `<h1>Test</h1>`
-// });
+};
+
+// listen for keydown events on the whole page
+document.onkeydown = game.keyDown;
+
+// game.selectors.unmuteId.addEventListener("click", game.toggleAudio());
 
 // fun begins when a user presses a key
 function keyDown(event) {
