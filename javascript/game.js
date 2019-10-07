@@ -64,6 +64,7 @@ var game = {
   },
   toggleAudio() {
     var music = game.selectors.audioId;
+    music.volume = 0.5;
     var button = game.selectors.unmuteId;
     if (music.paused) {
       music.play();
