@@ -34,14 +34,14 @@ var game = {
     win: 0,
     loss: 0
   },
-  start: function() {
+  start() {
     game.gameState.answer = game
       .pickAnswer(game.gameSettings.dictionary)
       .toLowerCase();
     game.gameState.attemptChars = "";
     game.gameState.attemptCounter = 12;
   },
-  pickAnswer: function(str) {
+  pickAnswer(str) {
     var randInt = Math.floor(Math.random() * str.length);
     var tempStr = "";
     for (let index = 0; index < str[randInt].length; index++) {
@@ -50,7 +50,7 @@ var game = {
     game.gameState.answerDisplay = tempStr;
     return str[randInt];
   },
-  update: function() {
+  update() {
     game.selectors.answerImgId.setAttribute(
       "src",
       `images/${game.gameState.answer.toLowerCase()}.jpg`
@@ -62,7 +62,7 @@ var game = {
   Attempts left: ${game.gameState.attemptCounter} <br/>Attempted letters: <span id="attempts">${game.gameState.attemptChars}</span>
   `;
   },
-  toggleAudio: function() {
+  toggleAudio() {
     var music = game.selectors.audioId;
     var button = game.selectors.unmuteId;
     if (music.paused) {
@@ -74,14 +74,12 @@ var game = {
       button.textContent = "Play music";
     }
   },
-  keyDown: function(event) {
-    console.log(event);
+  keyDown(event) {
     var key = event.key;
     game.checkKey(key);
     game.update();
   },
-  checkKey: function(key) {
-    console.log(game);
+  checkKey(key) {
     if (game.gameSettings.allowedChars.includes(key)) {
       game.selectors.warningId.textContent = "";
       if (!game.gameState.attemptChars.includes(key)) {
