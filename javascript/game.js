@@ -60,7 +60,7 @@ var game = {
     // answer is set to a random string from the str array (and made lowercase to avoid filesystem shenanigans)
     this.gameState.answer = dict[randInt].toLowerCase();
     // RegEx looks prettier all on one line, essentially the regex matches any letter a-z
-    this.gameState.answerDisplay = dictor[randInt].replace(/[a-z]/gi, "_");
+    this.gameState.answerDisplay = dict[randInt].replace(/[a-z]/gi, "_");
   },
   // the update method changes the HTML on the page to always display the current state
   update() {
