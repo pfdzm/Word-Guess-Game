@@ -1,72 +1,38 @@
-// dictionary of words to choose from randomly, words are case insensitive
-// 'programming' theme
-// sanitize input to focus on alphabet letters only
-var allowedChars = "abcdefghijklmnopqrstuvwxyz";
-
-var dictionary = [
-  "terminal",
-  "JavaScript",
-  "Windows",
-  "Linux",
-  "Macintosh",
-  "Commodore",
-  "Amiga"
-];
-
-/*
-declare variables
-answer will contain the chosen word from dictionary
-answerDisplay will contain the answer substituted with underscores/correct guesses
-attemptCounter keeps track of wrong guesses
-attemptChars contains all previously guessed letters
-
-they are initialized later, no need for it here
-
-*/
-var answer, answerDisplay, attemptCounter, attemptChars;
-
-var win = 0,
-  loss = 0;
-
-// select elements to put data into
-var target = document.querySelector("#playArea");
-var app = document.querySelector("#app");
-var answerDisplayId = document.querySelector("#answerDisplay");
-var attemptCharsId = document.querySelector("#attemptChars");
-var warningId = document.querySelector("#warning");
-var scoreId = document.querySelector("#score");
-var answerImgId = document.querySelector("img#answer");
-var unmuteId = document.querySelector("button#unmute");
-var audioId = document.querySelector("#musicplayer");
-
-// this variable is used to trigger a new game
-var startGame = true;
-
 /* game object */
 
 var game = {
-  gameSettings: { dictionary, allowedChars },
+  gameSettings: {
+    dictionary: [
+      "terminal",
+      "JavaScript",
+      "Windows",
+      "Linux",
+      "Macintosh",
+      "Commodore",
+      "Amiga"
+    ],
+    allowedChars: "abcdefghijklmnopqrstuvwxyz"
+  },
   gameState: {
     answer,
     answerDisplay,
-    attemptCounter,
-    attemptChars,
-    startGame
+    attemptCounter: 12,
+    attemptChars: ""
   },
   selectors: {
-    app,
-    target,
-    answerDisplayId,
-    attemptCharsId,
-    warningId,
-    scoreId,
-    answerImgId,
-    unmuteId,
-    audioId
+    app: document.querySelector("#app"),
+    target: document.querySelector("#playArea"),
+    answerDisplayId: document.querySelector("#answerDisplay"),
+    attemptCharsId: document.querySelector("#attemptChars"),
+    warningId: document.querySelector("#warning"),
+    scoreId: document.querySelector("#score"),
+    answerImgId: document.querySelector("img#answer"),
+    unmuteId: document.querySelector("button#unmute"),
+    audioId: document.querySelector("#musicplayer")
   },
   score: {
-    win,
-    loss
+    win: 0,
+    loss: 0
   },
   start: function() {
     game.gameState.answer = game
@@ -74,7 +40,6 @@ var game = {
       .toLowerCase();
     game.gameState.attemptChars = "";
     game.gameState.attemptCounter = 12;
-    game.gameState.startGame = false;
   },
   pickAnswer: function(str) {
     var randInt = Math.floor(Math.random() * str.length);
@@ -140,8 +105,8 @@ var game = {
             // playSuccess();
             game.selectors.scoreId.textContent = `Wins: ${++game.score
               .win}, Losses: ${game.score.loss}`;
-            game.selectors.warningId.textContent =
-              "You win! Press any key to play again...";
+
+            game.playSuccess();
             game.start();
           }
         } else if (--game.gameState.attemptCounter == 0) {
@@ -149,8 +114,8 @@ var game = {
           game.selectors.scoreId.textContent = `Wins: ${
             game.score.win
           }, Losses: ${++game.score.loss}`;
-          game.selectors.warningId.textContent =
-            "Game over! Press any key to play again...";
+
+          game.playError();
           game.start();
         }
       }
@@ -161,79 +126,67 @@ var game = {
   },
   replaceDash(strRef, position, str) {
     return strRef.substring(0, position) + str + strRef.substring(position + 1);
+  },
+  // audio stuff with some help
+  // from https://css-tricks.com/form-validation-web-audio/
+  context: new window.AudioContext(),
+  playSuccess() {
+    const successNoise = game.context.createOscillator();
+    successNoise.frequency = "600";
+    successNoise.type = "sine";
+    successNoise.frequency.exponentialRampToValueAtTime(
+      800,
+      game.context.currentTime + 0.05
+    );
+    successNoise.frequency.exponentialRampToValueAtTime(
+      1000,
+      game.context.currentTime + 0.15
+    );
+
+    successGain = game.context.createGain();
+    successGain.gain.exponentialRampToValueAtTime(
+      0.01,
+      game.context.currentTime + 0.3
+    );
+
+    successFilter = game.context.createBiquadFilter("bandpass");
+    successFilter.Q = 0.01;
+
+    successNoise
+      .connect(successFilter)
+      .connect(successGain)
+      .connect(game.context.destination);
+    successNoise.start();
+    successNoise.stop(game.context.currentTime + 0.2);
+  },
+  playError() {
+    const errorNoise = game.context.createOscillator();
+    errorNoise.frequency = "400";
+    errorNoise.type = "sine";
+    errorNoise.frequency.exponentialRampToValueAtTime(
+      200,
+      game.context.currentTime + 0.05
+    );
+    errorNoise.frequency.exponentialRampToValueAtTime(
+      100,
+      game.context.currentTime + 0.2
+    );
+
+    errorGain = game.context.createGain();
+    errorGain.gain.exponentialRampToValueAtTime(
+      0.01,
+      game.context.currentTime + 0.3
+    );
+
+    errorNoise.connect(errorGain).connect(game.context.destination);
+    errorNoise.start();
+    errorNoise.stop(game.context.currentTime + 0.3);
   }
 };
 
 // listen for keydown events on the whole page
 // document.onkeydown = game.keyDown;
+// const context = new window.Audiogame.context();
 game.start();
 document.addEventListener("keydown", game.keyDown);
-
-// game.selectors.unmuteId.addEventListener("click", game.toggleAudio());
-
-// Another custom function to clean up code, this one takes a string a replaces every
-// letter with an underscore
-
-function anonimizeAnswer(str) {
-  var tempStr = "";
-  for (let index = 0; index < str.length; index++) {
-    tempStr += `_`;
-  }
-
-  return tempStr;
-}
-
-// from https://css-tricks.com/form-validation-web-audio/
-
-const context = new window.AudioContext();
-
-function playSuccess() {
-  const successNoise = context.createOscillator();
-  successNoise.frequency = "600";
-  successNoise.type = "sine";
-  successNoise.frequency.exponentialRampToValueAtTime(
-    800,
-    context.currentTime + 0.05
-  );
-  successNoise.frequency.exponentialRampToValueAtTime(
-    1000,
-    context.currentTime + 0.15
-  );
-
-  successGain = context.createGain();
-  successGain.gain.exponentialRampToValueAtTime(
-    0.01,
-    context.currentTime + 0.3
-  );
-
-  successFilter = context.createBiquadFilter("bandpass");
-  successFilter.Q = 0.01;
-
-  successNoise
-    .connect(successFilter)
-    .connect(successGain)
-    .connect(context.destination);
-  successNoise.start();
-  successNoise.stop(context.currentTime + 0.2);
-}
-
-function playError() {
-  const errorNoise = context.createOscillator();
-  errorNoise.frequency = "400";
-  errorNoise.type = "sine";
-  errorNoise.frequency.exponentialRampToValueAtTime(
-    200,
-    context.currentTime + 0.05
-  );
-  errorNoise.frequency.exponentialRampToValueAtTime(
-    100,
-    context.currentTime + 0.2
-  );
-
-  errorGain = context.createGain();
-  errorGain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.3);
-
-  errorNoise.connect(errorGain).connect(context.destination);
-  errorNoise.start();
-  errorNoise.stop(context.currentTime + 0.3);
-}
+game.selectors.unmuteId.addEventListener("click", game.toggleAudio);
