@@ -51,14 +51,16 @@ var game = {
     this.update();
     this.fetchImg();
   },
-  pickAnswer(str) {
+  pickAnswer(dict) {
     // str is an array of strings
-    var randInt = Math.floor(Math.random() * str.length);
+    // since this is 'truly' random, essentially we could end up with the same answer several times in a row ...
+    // we generate a random int between 0 and dict.length-1
+    var randInt = Math.floor(Math.random() * dict.length);
 
     // answer is set to a random string from the str array (and made lowercase to avoid filesystem shenanigans)
-    this.gameState.answer = str[randInt].toLowerCase();
+    this.gameState.answer = dict[randInt].toLowerCase();
     // RegEx looks prettier all on one line, essentially the regex matches any letter a-z
-    this.gameState.answerDisplay = str[randInt].replace(/[a-z]/gi, "_");
+    this.gameState.answerDisplay = dictor[randInt].replace(/[a-z]/gi, "_");
   },
   // the update method changes the HTML on the page to always display the current state
   update() {
