@@ -12,7 +12,8 @@ var game = {
       "Amiga",
       "Steve Jobs",
       "Richard Stallman",
-      "Bill Gates"
+      "Bill Gates",
+      "Mark Zuckerberg"
     ],
     allowedChars: "abcdefghijklmnopqrstuvwxyz"
   },
