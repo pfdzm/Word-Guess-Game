@@ -69,32 +69,37 @@ var game = {
     loss
   },
   start: function() {
-    if (this.gameState.startGame) {
-      this.gameState.answer = this.pickAnswer(
-        this.gameSettings.dictionary
-      ).toLowerCase();
-    }
+    game.gameState.answer = game
+      .pickAnswer(game.gameSettings.dictionary)
+      .toLowerCase();
+    game.gameState.attemptChars = "";
+    game.gameState.attemptCounter = 12;
+    game.gameState.startGame = false;
   },
   pickAnswer: function(str) {
     var randInt = Math.floor(Math.random() * str.length);
+    var tempStr = "";
+    for (let index = 0; index < str[randInt].length; index++) {
+      tempStr += `_`;
+    }
+    game.gameState.answerDisplay = tempStr;
     return str[randInt];
   },
-
   update: function() {
-    this.selectors.answerImgId.setAttribute(
+    game.selectors.answerImgId.setAttribute(
       "src",
-      `images/${this.gameState.answer.toLowerCase()}.jpg`
+      `images/${game.gameState.answer.toLowerCase()}.jpg`
     );
-    this.selectors.answerImgId.setAttribute("class", "styled");
-    this.selectors.answerDisplayId.textContent = answerDisplay;
+    game.selectors.answerImgId.setAttribute("class", "styled");
+    game.selectors.answerDisplayId.textContent = game.gameState.answerDisplay;
 
-    this.selectors.attemptCharsId.innerHTML = `
-  Attempts left: ${this.gameState.attemptCounter} <br/>Attempted letters: <span id="attempts">${this.gameState.attemptChars}</span>
+    game.selectors.attemptCharsId.innerHTML = `
+  Attempts left: ${game.gameState.attemptCounter} <br/>Attempted letters: <span id="attempts">${game.gameState.attemptChars}</span>
   `;
   },
   toggleAudio: function() {
-    var music = this.selectors.audioId;
-    var button = this.selectors.unmuteId;
+    var music = game.selectors.audioId;
+    var button = game.selectors.unmuteId;
     if (music.paused) {
       music.play();
       music.loop = true;
@@ -105,140 +110,66 @@ var game = {
     }
   },
   keyDown: function(event) {
+    console.log(event);
     var key = event.key;
-    console.log(this);
-    this.checkKey(key);
-
+    game.checkKey(key);
+    game.update();
   },
   checkKey: function(key) {
-    if (this.gameSettings.allowedChars.includes(key)) {
-      this.selectors.warningId.textContent = "";
-      if (!this.gameState.attemptChars.includes(key)) {
+    console.log(game);
+    if (game.gameSettings.allowedChars.includes(key)) {
+      game.selectors.warningId.textContent = "";
+      if (!game.gameState.attemptChars.includes(key)) {
         // user had not tried key -> add key to list of attempts, decrease remaining attempts by 1
-        this.gameState.attemptChars += key;
-        if (this.gameState.answer.includes(key)) {
+        game.gameState.attemptChars += key;
+        if (game.gameState.answer.includes(key)) {
           // user has guessed a correct letter
           // get the index of the first occurrence of the letter
-          var position = this.gameState.answer.indexOf(key);
+          var position = game.gameState.answer.indexOf(key);
           // get all occurrences of the letter to replace dashes on screen
           while (position > -1) {
             // replace underscore with correct letter
-            this.gameState.answerDisplay = replaceDash(
-              this.gameState.answerDisplay,
+            game.gameState.answerDisplay = game.replaceDash(
+              game.gameState.answerDisplay,
               position,
               key
             );
-            position = this.gameState.answer.indexOf(key, position + 1);
+            position = game.gameState.answer.indexOf(key, position + 1);
           }
-          if (this.gameState.answerDisplay === this.gameState.answer) {
+          if (game.gameState.answerDisplay === game.gameState.answer) {
             // playSuccess();
-            this.selectors.scoreId.textContent = `Wins: ${++this.score
-              .win}, Losses: ${this.score.loss}`;
-            this.selectors.warningId.textContent =
+            game.selectors.scoreId.textContent = `Wins: ${++game.score
+              .win}, Losses: ${game.score.loss}`;
+            game.selectors.warningId.textContent =
               "You win! Press any key to play again...";
-            this.gameState.startGame = true;
+            game.start();
           }
-        } else if (--this.gameState.attemptCounter == 0) {
+        } else if (--game.gameState.attemptCounter == 0) {
           // playError();
-          this.selectors.scoreId.textContent = `Wins: ${
-            this.score.win
-          }, Losses: ${++this.score.loss}`;
-          this.selectors.warningId.textContent =
+          game.selectors.scoreId.textContent = `Wins: ${
+            game.score.win
+          }, Losses: ${++game.score.loss}`;
+          game.selectors.warningId.textContent =
             "Game over! Press any key to play again...";
-          this.gameState.startGame = true;
+          game.start();
         }
       }
     } else {
       // let user know we only accept abc-input
-      this.selectors.warningId.textContent = "Letters only!";
+      game.selectors.warningId.textContent = "Letters only!";
     }
+  },
+  replaceDash(strRef, position, str) {
+    return strRef.substring(0, position) + str + strRef.substring(position + 1);
   }
 };
 
 // listen for keydown events on the whole page
 // document.onkeydown = game.keyDown;
-
-game.selectors.app.addEventListener('keydown', game.keyDown());
+game.start();
+document.addEventListener("keydown", game.keyDown);
 
 // game.selectors.unmuteId.addEventListener("click", game.toggleAudio());
-
-// fun begins when a user presses a key
-function keyDown(event) {
-  var key = event.key;
-  // resume Audio Context after user interaction so browser lets us play a sound
-  context.resume();
-
-  // if it's the first keypress, we need to select a word and display the blanks on the screen
-  if (startGame) {
-    // keep things easy by making everything lowercase
-    answer = pickAnswer(dictionary).toLowerCase();
-    answerDisplay = anonimizeAnswer(answer);
-    attemptChars = "";
-    attemptCounter = 12;
-    warningId.textContent = "";
-    startGame = false;
-    updatePage(
-      answerDisplayId,
-      answerDisplay,
-      attemptCharsId,
-      attemptCounter,
-      attemptChars
-    );
-  } else {
-    if (allowedChars.includes(key)) {
-      warningId.textContent = "";
-      if (!attemptChars.includes(key)) {
-        // user had not tried key -> add key to list of attempts, decrease remaining attempts by 1
-        attemptChars += key;
-        if (answer.includes(key)) {
-          // user has guessed a correct letter
-          // get the index of the first occurrence of the letter
-          var position = answer.indexOf(key);
-          // get all occurrences of the letter to replace dashes on screen
-          while (position > -1) {
-            // replace underscore with correct letter
-            answerDisplay = replaceDash(answerDisplay, position, key);
-            position = answer.indexOf(key, position + 1);
-          }
-          if (answerDisplay === answer) {
-            playSuccess();
-            scoreId.textContent = `Wins: ${++win}, Losses: ${loss}`;
-            warningId.textContent = "You win! Press any key to play again...";
-            startGame = true;
-          }
-        } else if (--attemptCounter == 0) {
-          playError();
-          scoreId.textContent = `Wins: ${win}, Losses: ${++loss}`;
-          warningId.textContent = "Game over! Press any key to play again...";
-          startGame = true;
-          updatePage(
-            answerDisplayId,
-            answerDisplay,
-            attemptCharsId,
-            attemptCounter,
-            attemptChars
-          );
-        }
-      }
-    } else {
-      // let user know we only accept abc-input
-      warningId.textContent = "Letters only!";
-    }
-    updatePage(
-      answerDisplayId,
-      answerDisplay,
-      attemptCharsId,
-      attemptCounter,
-      attemptChars
-    );
-  }
-}
-
-// Custom function to clean up code; takes a string, a position and a substring to replace at said position
-
-function replaceDash(strRef, position, str) {
-  return strRef.substring(0, position) + str + strRef.substring(position + 1);
-}
 
 // Another custom function to clean up code, this one takes a string a replaces every
 // letter with an underscore
@@ -250,28 +181,6 @@ function anonimizeAnswer(str) {
   }
 
   return tempStr;
-}
-
-function pickAnswer(dictionary) {
-  var randInt = Math.floor(Math.random() * dictionary.length);
-  return dictionary[randInt];
-}
-
-// updates guesses on screen
-function updatePage(
-  answerDisplayId,
-  answerDisplay,
-  attemptCharsId,
-  attemptCounter,
-  attemptChars
-) {
-  answerImgId.setAttribute("src", `images/${answer.toLowerCase()}.jpg`);
-  answerImgId.setAttribute("class", "styled");
-  answerDisplayId.textContent = answerDisplay;
-
-  attemptCharsId.innerHTML = `
-  Attempts left: ${attemptCounter} <br/>Attempted letters: <span id="attempts">${attemptChars}</span>
-  `;
 }
 
 // from https://css-tricks.com/form-validation-web-audio/
