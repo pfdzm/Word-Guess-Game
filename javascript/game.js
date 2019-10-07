@@ -51,7 +51,7 @@ var game = {
   update() {
     this.selectors.answerImgId.setAttribute(
       "src",
-      `images/${this.gameState.answer.toLowerCase()}.jpg`
+      `images/${this.gameState.answer}.jpg`
     );
     this.selectors.answerImgId.setAttribute("class", "styled");
     this.selectors.answerDisplayId.textContent = this.gameState.answerDisplay;
@@ -93,7 +93,7 @@ var game = {
           // get all occurrences of the letter to replace dashes on screen
           while (position > -1) {
             // replace underscore with correct letter
-            this.gameState.answerDisplay = this.replaceDash(
+            this.gameState.answerDisplay = this.replaceAt(
               this.gameState.answerDisplay,
               position,
               key
@@ -125,7 +125,7 @@ var game = {
     // uncomment the following statement to track game state in console after each keydown
     console.log(this.gameState);
   },
-  replaceDash(strRef, position, str) {
+  replaceAt(strRef, position, str) {
     return strRef.substring(0, position) + str + strRef.substring(position + 1);
   },
   // audio stuff with some help
