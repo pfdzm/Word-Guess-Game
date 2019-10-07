@@ -35,11 +35,9 @@ var game = {
     loss: 0
   },
   start() {
-    game.gameState.answer = game
-      .pickAnswer(game.gameSettings.dictionary)
-      .toLowerCase();
-    game.gameState.attemptChars = "";
-    game.gameState.attemptCounter = 12;
+    this.pickAnswer(this.gameSettings.dictionary);
+    this.gameState.attemptChars = "";
+    this.gameState.attemptCounter = 12;
   },
   pickAnswer(str) {
     var randInt = Math.floor(Math.random() * str.length);
@@ -47,81 +45,85 @@ var game = {
     for (let index = 0; index < str[randInt].length; index++) {
       tempStr += `_`;
     }
-    game.gameState.answerDisplay = tempStr;
-    return str[randInt];
+    this.gameState.answerDisplay = tempStr;
+    this.gameState.answer = str[randInt].toLowerCase();
   },
   update() {
-    game.selectors.answerImgId.setAttribute(
+    this.selectors.answerImgId.setAttribute(
       "src",
-      `images/${game.gameState.answer.toLowerCase()}.jpg`
+      `images/${this.gameState.answer.toLowerCase()}.jpg`
     );
-    game.selectors.answerImgId.setAttribute("class", "styled");
-    game.selectors.answerDisplayId.textContent = game.gameState.answerDisplay;
+    this.selectors.answerImgId.setAttribute("class", "styled");
+    this.selectors.answerDisplayId.textContent = this.gameState.answerDisplay;
 
-    game.selectors.attemptCharsId.innerHTML = `
-  Attempts left: ${game.gameState.attemptCounter} <br/>Attempted letters: <span id="attempts">${game.gameState.attemptChars}</span>
+    this.selectors.attemptCharsId.innerHTML = `
+  Attempts left: ${this.gameState.attemptCounter} <br/>Attempted letters: <span id="attempts">${this.gameState.attemptChars}</span>
   `;
   },
   toggleAudio() {
     var music = game.selectors.audioId;
     music.volume = 0.5;
-    var button = game.selectors.unmuteId;
     if (music.paused) {
       music.play();
       music.loop = true;
-      button.textContent = "Pause music";
+      this.textContent = "Pause music";
     } else {
       music.pause();
-      button.textContent = "Play music";
+      this.textContent = "Play music";
     }
   },
   keyDown(event) {
     var key = event.key;
+
+    // if we call 'this.checkKey()' here, the function would be in the wrong scope
+    // make sure checkKey's scope is the game object
     game.checkKey(key);
     game.update();
   },
   checkKey(key) {
-    if (game.gameSettings.allowedChars.includes(key)) {
-      game.selectors.warningId.textContent = "";
-      if (!game.gameState.attemptChars.includes(key)) {
+    if (this.gameSettings.allowedChars.includes(key)) {
+      this.selectors.warningId.textContent = "";
+      if (!this.gameState.attemptChars.includes(key)) {
         // user had not tried key -> add key to list of attempts, decrease remaining attempts by 1
-        game.gameState.attemptChars += key;
-        if (game.gameState.answer.includes(key)) {
+        this.gameState.attemptChars += key;
+        if (this.gameState.answer.includes(key)) {
           // user has guessed a correct letter
           // get the index of the first occurrence of the letter
-          var position = game.gameState.answer.indexOf(key);
+          var position = this.gameState.answer.indexOf(key);
           // get all occurrences of the letter to replace dashes on screen
           while (position > -1) {
             // replace underscore with correct letter
-            game.gameState.answerDisplay = game.replaceDash(
-              game.gameState.answerDisplay,
+            this.gameState.answerDisplay = this.replaceDash(
+              this.gameState.answerDisplay,
               position,
               key
             );
-            position = game.gameState.answer.indexOf(key, position + 1);
+            position = this.gameState.answer.indexOf(key, position + 1);
           }
-          if (game.gameState.answerDisplay === game.gameState.answer) {
+          if (this.gameState.answerDisplay === this.gameState.answer) {
             // playSuccess();
-            game.selectors.scoreId.textContent = `Wins: ${++game.score
-              .win}, Losses: ${game.score.loss}`;
+            this.selectors.scoreId.textContent = `Wins: ${++this.score
+              .win}, Losses: ${this.score.loss}`;
 
-            game.playSuccess();
-            game.start();
+            this.playSuccess();
+            this.start();
           }
-        } else if (--game.gameState.attemptCounter == 0) {
+        } else if (--this.gameState.attemptCounter == 0) {
           // playError();
-          game.selectors.scoreId.textContent = `Wins: ${
-            game.score.win
-          }, Losses: ${++game.score.loss}`;
+          this.selectors.scoreId.textContent = `Wins: ${
+            this.score.win
+          }, Losses: ${++this.score.loss}`;
 
-          game.playError();
-          game.start();
+          this.playError();
+          this.start();
         }
       }
     } else {
       // let user know we only accept abc-input
-      game.selectors.warningId.textContent = "Letters only!";
+      this.selectors.warningId.textContent = "Letters only!";
     }
+    // uncomment the following statement to track game state in console after each keydown
+    console.log(this.gameState);
   },
   replaceDash(strRef, position, str) {
     return strRef.substring(0, position) + str + strRef.substring(position + 1);
@@ -130,56 +132,56 @@ var game = {
   // from https://css-tricks.com/form-validation-web-audio/
   context: new window.AudioContext(),
   playSuccess() {
-    const successNoise = game.context.createOscillator();
+    const successNoise = this.context.createOscillator();
     successNoise.frequency = "600";
     successNoise.type = "sine";
     successNoise.frequency.exponentialRampToValueAtTime(
       800,
-      game.context.currentTime + 0.05
+      this.context.currentTime + 0.05
     );
     successNoise.frequency.exponentialRampToValueAtTime(
       1000,
-      game.context.currentTime + 0.15
+      this.context.currentTime + 0.15
     );
 
-    successGain = game.context.createGain();
+    successGain = this.context.createGain();
     successGain.gain.exponentialRampToValueAtTime(
       0.01,
-      game.context.currentTime + 0.3
+      this.context.currentTime + 0.3
     );
 
-    successFilter = game.context.createBiquadFilter("bandpass");
+    successFilter = this.context.createBiquadFilter("bandpass");
     successFilter.Q = 0.01;
 
     successNoise
       .connect(successFilter)
       .connect(successGain)
-      .connect(game.context.destination);
+      .connect(this.context.destination);
     successNoise.start();
-    successNoise.stop(game.context.currentTime + 0.2);
+    successNoise.stop(this.context.currentTime + 0.2);
   },
   playError() {
-    const errorNoise = game.context.createOscillator();
+    const errorNoise = this.context.createOscillator();
     errorNoise.frequency = "400";
     errorNoise.type = "sine";
     errorNoise.frequency.exponentialRampToValueAtTime(
       200,
-      game.context.currentTime + 0.05
+      this.context.currentTime + 0.05
     );
     errorNoise.frequency.exponentialRampToValueAtTime(
       100,
-      game.context.currentTime + 0.2
+      this.context.currentTime + 0.2
     );
 
-    errorGain = game.context.createGain();
+    errorGain = this.context.createGain();
     errorGain.gain.exponentialRampToValueAtTime(
       0.01,
-      game.context.currentTime + 0.3
+      this.context.currentTime + 0.3
     );
 
-    errorNoise.connect(errorGain).connect(game.context.destination);
+    errorNoise.connect(errorGain).connect(this.context.destination);
     errorNoise.start();
-    errorNoise.stop(game.context.currentTime + 0.3);
+    errorNoise.stop(this.context.currentTime + 0.3);
   }
 };
 
