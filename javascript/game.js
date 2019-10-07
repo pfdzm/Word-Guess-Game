@@ -9,7 +9,10 @@ var game = {
       "Linux",
       "Macintosh",
       "Commodore",
-      "Amiga"
+      "Amiga",
+      "Steve Jobs",
+      "Richard Stallman",
+      "Bill Gates"
     ],
     allowedChars: "abcdefghijklmnopqrstuvwxyz"
   },
@@ -38,27 +41,32 @@ var game = {
     this.pickAnswer(this.gameSettings.dictionary);
     this.gameState.attemptChars = "";
     this.gameState.attemptCounter = 12;
+    this.update();
+    this.fetchImg();
   },
   pickAnswer(str) {
     var randInt = Math.floor(Math.random() * str.length);
-    var tempStr = "";
-    for (let index = 0; index < str[randInt].length; index++) {
-      tempStr += `_`;
-    }
-    this.gameState.answerDisplay = tempStr;
+    // var tempStr = str[randInt];
+    // for (let index = 0; index < str[randInt].length; index++) {
+    //   tempStr += `_`;
+    // }
+    this.gameState.answerDisplay = str[randInt].replace(/[a-z]/gi, "_");
     this.gameState.answer = str[randInt].toLowerCase();
   },
   update() {
-    this.selectors.answerImgId.setAttribute(
-      "src",
-      `images/${this.gameState.answer}.jpg`
-    );
-    this.selectors.answerImgId.setAttribute("class", "styled");
     this.selectors.answerDisplayId.textContent = this.gameState.answerDisplay;
 
     this.selectors.attemptCharsId.innerHTML = `
-  Attempts left: ${this.gameState.attemptCounter} <br/>Attempted letters: <span id="attempts">${this.gameState.attemptChars}</span>
+  Attempts left: ${this.gameState.attemptCounter} <br/>
+  Attempted letters: <span id="attempts">${this.gameState.attemptChars}</span>
   `;
+  },
+  fetchImg() {
+    this.selectors.answerImgId.setAttribute(
+      "src",
+      `images/${this.gameState.answer.replace(/[^\w]/gi, "")}.jpg`
+    );
+    this.selectors.answerImgId.setAttribute("class", "styled");
   },
   toggleAudio() {
     var music = game.selectors.audioId;
@@ -188,6 +196,6 @@ var game = {
 // listen for keydown events on the whole page
 // document.onkeydown = game.keyDown;
 // const context = new window.Audiogame.context();
-game.start();
 document.addEventListener("keydown", game.keyDown);
+game.start();
 game.selectors.unmuteId.addEventListener("click", game.toggleAudio);
