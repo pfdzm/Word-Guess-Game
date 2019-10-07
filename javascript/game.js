@@ -1,6 +1,7 @@
 /* game object */
 
 var game = {
+  // the gameSettings object holds both the pool of words, as well as the allowed characters (a-z)
   gameSettings: {
     dictionary: [
       "terminal",
@@ -17,12 +18,14 @@ var game = {
     ],
     allowedChars: "abcdefghijklmnopqrstuvwxyz"
   },
+  // in the gameState object I'm keeping track of values that are changed (almost) every keypress
   gameState: {
     answer,
     answerDisplay,
     attemptCounter: 12,
     attemptChars: ""
   },
+  // these are selectors used in some of the game methods, to reduce clutter
   selectors: {
     app: document.querySelector("#app"),
     target: document.querySelector("#playArea"),
@@ -34,10 +37,13 @@ var game = {
     unmuteId: document.querySelector("button#unmute"),
     audioId: document.querySelector("#musicplayer")
   },
+  // the score object keeps track of the player's overall score
   score: {
     win: 0,
     loss: 0
   },
+  // the start method initializes the game, picking an answer and (re)setting
+  // number of guesses and guessed letters
   start() {
     this.pickAnswer(this.gameSettings.dictionary);
     this.gameState.attemptChars = "";
@@ -46,41 +52,47 @@ var game = {
     this.fetchImg();
   },
   pickAnswer(str) {
+    // str is an array of strings
     var randInt = Math.floor(Math.random() * str.length);
-    // var tempStr = str[randInt];
-    // for (let index = 0; index < str[randInt].length; index++) {
-    //   tempStr += `_`;
-    // }
-    this.gameState.answerDisplay = str[randInt].replace(/[a-z]/gi, "_");
+
+    // answer is set to a random string from the str array (and made lowercase to avoid filesystem shenanigans)
     this.gameState.answer = str[randInt].toLowerCase();
+    // RegEx looks prettier all on one line, essentially the regex matches any letter a-z
+    this.gameState.answerDisplay = str[randInt].replace(/[a-z]/gi, "_");
   },
+  // the update method changes the HTML on the page to always display the current state
   update() {
     this.selectors.answerDisplayId.textContent = this.gameState.answerDisplay;
-
     this.selectors.attemptCharsId.innerHTML = `
   Attempts left: ${this.gameState.attemptCounter} <br/>
   Attempted letters: <span id="attempts">${this.gameState.attemptChars}</span>
   `;
   },
+  // this method sets the src attribute for the image corresponding to the chosen answer
   fetchImg() {
     this.selectors.answerImgId.setAttribute(
       "src",
-      `images/${this.gameState.answer.replace(/[^\w]/gi, "")}.jpg`
+      `images/${this.gameState.answer.replace(/[^\w]/gi, "")}.jpg` // regex matches any non a-z character and removes it
     );
+    // the 'answer img' isn't styled until an img isn't picked, to avoid a border around an empty element before load
     this.selectors.answerImgId.setAttribute("class", "styled");
   },
+  // this method turns the background music on. since browsers now prevent autoplay before user interaction, require user
+  // to press the button to start the music
   toggleAudio() {
     var music = game.selectors.audioId;
     music.volume = 0.5;
     if (music.paused) {
       music.play();
       music.loop = true;
+      // 'this' in this scope refers to the game.selectors.unmuteId
       this.textContent = "Pause music";
     } else {
       music.pause();
       this.textContent = "Play music";
     }
   },
+  // this function is triggered any time user presses a key
   keyDown(event) {
     var key = event.key;
 
@@ -89,9 +101,12 @@ var game = {
     game.checkKey(key);
     game.update();
   },
+  // here's the game logic
   checkKey(key) {
+    // if key is a-z
     if (this.gameSettings.allowedChars.includes(key)) {
       this.selectors.warningId.textContent = "";
+      // if key has not been guessed in this round already
       if (!this.gameState.attemptChars.includes(key)) {
         // user had not tried key -> add key to list of attempts, decrease remaining attempts by 1
         this.gameState.attemptChars += key;
@@ -110,7 +125,6 @@ var game = {
             position = this.gameState.answer.indexOf(key, position + 1);
           }
           if (this.gameState.answerDisplay === this.gameState.answer) {
-            // playSuccess();
             this.selectors.scoreId.textContent = `Wins: ${++this.score
               .win}, Losses: ${this.score.loss}`;
 
@@ -138,6 +152,7 @@ var game = {
     return strRef.substring(0, position) + str + strRef.substring(position + 1);
   },
   // audio stuff with some help
+  // the following methods use the Web Audio API to synthesize two sounds
   // from https://css-tricks.com/form-validation-web-audio/
   context: new window.AudioContext(),
   playSuccess() {
@@ -195,8 +210,8 @@ var game = {
 };
 
 // listen for keydown events on the whole page
-// document.onkeydown = game.keyDown;
-// const context = new window.Audiogame.context();
 document.addEventListener("keydown", game.keyDown);
+// intialize the game the game
 game.start();
+// listen for clicks on the 'play music' button
 game.selectors.unmuteId.addEventListener("click", game.toggleAudio);
