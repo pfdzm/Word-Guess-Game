@@ -30,7 +30,7 @@ var win = 0,
 
 // select elements to put data into
 var target = document.querySelector("#playArea");
-// var app = document.querySelector("#app");
+var app = document.querySelector("#app");
 var answerDisplayId = document.querySelector("#answerDisplay");
 var attemptCharsId = document.querySelector("#attemptChars");
 var warningId = document.querySelector("#warning");
@@ -54,6 +54,7 @@ var game = {
     startGame
   },
   selectors: {
+    app,
     target,
     answerDisplayId,
     attemptCharsId,
@@ -106,7 +107,7 @@ var game = {
   keyDown: function(event) {
     var key = event.key;
     console.log(this);
-    game.checkKey(key);
+    this.checkKey(key);
 
   },
   checkKey: function(key) {
@@ -155,7 +156,9 @@ var game = {
 };
 
 // listen for keydown events on the whole page
-document.onkeydown = game.keyDown;
+// document.onkeydown = game.keyDown;
+
+game.selectors.app.addEventListener('keydown', game.keyDown());
 
 // game.selectors.unmuteId.addEventListener("click", game.toggleAudio());
 
