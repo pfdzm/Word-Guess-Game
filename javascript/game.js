@@ -23,7 +23,8 @@ var game = {
     answer,
     answerDisplay,
     attemptCounter: 12,
-    attemptChars: ""
+    attemptChars: "",
+    previousAnswer: undefined
   },
   // these are selectors used in some of the game methods, to reduce clutter
   selectors: {
@@ -45,9 +46,21 @@ var game = {
   // the start method initializes the game, picking an answer and (re)setting
   // number of guesses and guessed letters
   start: function() {
-    this.pickAnswer(this.gameSettings.dictionary);
-    this.gameState.attemptChars = "";
     this.gameState.attemptCounter = 12;
+    this.gameState.attemptChars = "";
+    /*
+    Here we check: is previousAnswer defined? (i.e. has the player played through one round?)
+    if yes, pick an answer, but if answer is equal to previousAnswer, keep picking an answer until they are
+    different
+    finally we update the page and fetch the corresponding img hint
+    */
+    if (this.gameState.previousAnswer) {
+      do {
+        this.pickAnswer(this.gameSettings.dictionary);
+      } while (this.gameState.answer === this.gameState.previousAnswer);
+    } else {
+      this.pickAnswer(this.gameSettings.dictionary);
+    }
     this.update();
     this.fetchImg();
   },
@@ -129,6 +142,7 @@ var game = {
           if (this.gameState.answerDisplay === this.gameState.answer) {
             this.selectors.scoreId.textContent = `Wins: ${++this.score
               .win}, Losses: ${this.score.loss}`;
+            this.gameState.previousAnswer = this.gameState.answer;
 
             this.playSuccess();
             this.start();
@@ -138,6 +152,7 @@ var game = {
           this.selectors.scoreId.textContent = `Wins: ${
             this.score.win
           }, Losses: ${++this.score.loss}`;
+          this.gameState.previousAnswer = this.gameState.answer;
 
           this.playError();
           this.start();
