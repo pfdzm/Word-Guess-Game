@@ -44,14 +44,14 @@ var game = {
   },
   // the start method initializes the game, picking an answer and (re)setting
   // number of guesses and guessed letters
-  start() {
+  start: function() {
     this.pickAnswer(this.gameSettings.dictionary);
     this.gameState.attemptChars = "";
     this.gameState.attemptCounter = 12;
     this.update();
     this.fetchImg();
   },
-  pickAnswer(dict) {
+  pickAnswer: function(dict) {
     // str is an array of strings
     // since this is 'truly' random, essentially we could end up with the same answer several times in a row ...
     // we generate a random int between 0 and dict.length-1
@@ -63,7 +63,7 @@ var game = {
     this.gameState.answerDisplay = dict[randInt].replace(/[a-z]/gi, "_");
   },
   // the update method changes the HTML on the page to always display the current state
-  update() {
+  update: function() {
     this.selectors.answerDisplayId.textContent = this.gameState.answerDisplay;
     this.selectors.attemptCharsId.innerHTML = `
   Attempts left: ${this.gameState.attemptCounter} <br/>
@@ -71,7 +71,7 @@ var game = {
   `;
   },
   // this method sets the src attribute for the image corresponding to the chosen answer
-  fetchImg() {
+  fetchImg: function() {
     this.selectors.answerImgId.setAttribute(
       "src",
       `images/${this.gameState.answer.replace(/[^\w]/gi, "")}.jpg` // regex matches any non a-z character and removes it
@@ -81,7 +81,7 @@ var game = {
   },
   // this method turns the background music on. since browsers now prevent autoplay before user interaction, require user
   // to press the button to start the music
-  toggleAudio() {
+  toggleAudio: function() {
     var music = game.selectors.audioId;
     music.volume = 0.5;
     if (music.paused) {
@@ -95,7 +95,7 @@ var game = {
     }
   },
   // this function is triggered any time user presses a key
-  keyDown(event) {
+  keyDown: function(event) {
     var key = event.key;
 
     // if we call 'this.checkKey()' here, the function would be in the wrong scope
@@ -104,7 +104,7 @@ var game = {
     game.update();
   },
   // here's the game logic
-  checkKey(key) {
+  checkKey: function(key) {
     // if key is a-z
     if (this.gameSettings.allowedChars.includes(key)) {
       this.selectors.warningId.textContent = "";
@@ -150,14 +150,14 @@ var game = {
     // (un)comment the following statement to track game state in console after each keydown
     // console.log(this.gameState);
   },
-  replaceAt(strRef, position, str) {
+  replaceAt: function(strRef, position, str) {
     return strRef.substring(0, position) + str + strRef.substring(position + 1);
   },
   // audio stuff with some help
   // the following methods use the Web Audio API to synthesize two sounds
   // from https://css-tricks.com/form-validation-web-audio/
   context: new window.AudioContext(),
-  playSuccess() {
+  playSuccess: function() {
     const successNoise = this.context.createOscillator();
     successNoise.frequency = "600";
     successNoise.type = "sine";
