@@ -201,7 +201,7 @@ var game = {
     successNoise.start();
     successNoise.stop(this.context.currentTime + 0.2);
   },
-  playError() {
+  playError: function() {
     const errorNoise = this.context.createOscillator();
     errorNoise.frequency = "400";
     errorNoise.type = "sine";
